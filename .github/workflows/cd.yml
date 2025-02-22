@@ -1,0 +1,105 @@
+name: Deploy Lambda
+
+on:
+  pull_request:
+    paths:
+        - 'src/lambda_function/**'
+        - 'terraform/**'
+    branches:
+        -main
+  push:
+    paths:
+      - 'src/lambda_function/**'
+      - 'terraform/**'
+    branches:
+      - feature-**
+      - fix-**
+
+on:
+    pull_request:
+        branches:
+        - main
+    push:
+        branches:
+        - LC-**
+        - LDGTM-**
+        - CPO-**
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build, tag, and push image
+        run: |
+          docker build -t my-lambda .
+          docker tag my-lambda:latest <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/my-lambda:latest
+          docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/my-lambda:latest
+
+  terraform-plan:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        working-directory: terraform/
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform/
+        run: terraform plan -out=tfplan
+        continue-on-error: true
+
+  terraform-apply:
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        working-directory: terraform/
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform/
+        run: terraform apply -auto-approve tfplan
