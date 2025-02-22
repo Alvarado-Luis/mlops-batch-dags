@@ -1,12 +1,6 @@
 name: Deploy Lambda
 
 on:
-  pull_request:
-    paths:
-        - 'src/lambda_function/**'
-        - 'terraform/**'
-    branches:
-        -main
   push:
     paths:
       - 'src/lambda_function/**'
