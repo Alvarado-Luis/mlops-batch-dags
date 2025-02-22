@@ -2,9 +2,6 @@ name: Deploy Lambda
 
 on:
   push:
-    paths:
-      - 'src/lambda_function/**'
-      - 'terraform/**'
     branches:
       - feature-**
       - fix-**
