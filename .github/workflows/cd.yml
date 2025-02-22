@@ -15,16 +15,6 @@ on:
       - feature-**
       - fix-**
 
-on:
-    pull_request:
-        branches:
-        - main
-    push:
-        branches:
-        - LC-**
-        - LDGTM-**
-        - CPO-**
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
