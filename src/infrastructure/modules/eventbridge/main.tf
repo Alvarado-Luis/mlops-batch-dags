@@ -6,7 +6,8 @@ resource "aws_cloudwatch_event_rule" "invoke_lambda" {
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
   rule      = aws_cloudwatch_event_rule.invoke_lambda.name
-  arn       = var.lambda_arn
+  target_id = "lambda"
+  arn       = var.rule_name
 }
 
 resource "aws_lambda_permission" "allow_eventbridge" {
