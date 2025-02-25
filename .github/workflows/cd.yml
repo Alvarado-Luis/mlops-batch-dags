@@ -3,8 +3,8 @@ name: Deploy Lambda
 on:
   push:
     branches:
-      - feature**
-      - fix**
+      - feature-**
+      - fix-**
   pull_request:
     branches:
       - main
@@ -42,7 +42,7 @@ jobs:
 
 
   terraform-plan:
-    needs: build-and-push
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
