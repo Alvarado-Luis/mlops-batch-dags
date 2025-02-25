@@ -18,12 +18,10 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         TF_VAR_AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
         TF_VAR_AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
 
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
