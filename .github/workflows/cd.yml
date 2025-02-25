@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-            docker build -t $TF_VAR_AWS_ECR_REPO_NAME lambda_function/
+            docker build -t $TF_VAR_AWS_ECR_REPO_NAME src/lambda_function/
             docker tag $TF_VAR_AWS_ECR_REPO_NAME:latest $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
 
       - name: Push Docker image to ECR
