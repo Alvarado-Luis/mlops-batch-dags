@@ -5,12 +5,10 @@ module "ecr" {
 
 module "lambda" {
   source = "./modules/lambda"
-  aws_region = data.aws_region.current.name
+  aws_region = var.aws_region
   aws_account_id = var.AWS_ACCOUNT_ID
   ecr_repository_name = var.AWS_ECR_REPO_NAME
   lambda_name = var.lambda_name
-  
-
 }
 
 module "eventbridge" {

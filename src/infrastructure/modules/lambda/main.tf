@@ -5,7 +5,7 @@ resource "aws_ecr_repository" "lambda_repo" {
 resource "aws_lambda_function" "this" {
   function_name = var.lambda_name
   package_type  = "Image"
-  image_uri     = "${var.aws_account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.ecr_repository_name}:latest"
+  image_uri     = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_name}:latest"
   role          = aws_iam_role.lambda_exec.arn
   timeout       = 180
 }
