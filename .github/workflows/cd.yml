@@ -64,6 +64,12 @@ jobs:
         working-directory: src/infrastructure/
         run: terraform init
 
+      - name: Verificar conexión a AWS
+        run: aws sts get-caller-identity
+
+      - name: Debug AWS Data Sources
+        run: terraform refresh
+
       - name: Terraform Plan
         working-directory: src/infrastructure/
         run: terraform plan -out=tfplan
