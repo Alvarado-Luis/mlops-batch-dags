@@ -170,3 +170,26 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+
+# Ignore Terraform state files and backups
+*.tfstate
+*.tfstate.backup
+
+# Ignore Terraform configuration directories
+.terraform/
+
+# Ignore environment-specific files
+*.tfvars
+
+# Ignore sensitive files like the local variables or secrets files
+.secret/
+
+# Optionally ignore the lock file (depending on use)
+.terraform.lock.hcl

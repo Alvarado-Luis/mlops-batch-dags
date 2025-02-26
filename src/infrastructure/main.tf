@@ -1,15 +1,21 @@
+module "ecr" {
+  source = "./modules/ecr"
+  ecr_repository_name = var.AWS_ECR_REPO_NAME
+}
+
 module "lambda" {
   source = "./modules/lambda"
-  lambda_name = var.lambda_function_name
-  ecr_repository_name = var.ecr_repository_name
+  aws_region = data.aws_region.current.name
+  aws_account_id = var.AWS_ACCOUNT_ID
+  ecr_repository_name = var.AWS_ECR_REPO_NAME
+  lambda_name = var.lambda_name
+  
+
 }
 
 module "eventbridge" {
   source = "./modules/eventbridge"
   rule_name = var.eventbridge_rule_name
-  lambda_function_arn = module.lambda.lambda_function_arn
-}
-
-resource "aws_ecr_repository" "lambda_repo" {
-  name = var.ecr_repository_name
+  lambda_name = var.lambda_name
+  lambda_arn = module.lambda.lambda_arn
 }
