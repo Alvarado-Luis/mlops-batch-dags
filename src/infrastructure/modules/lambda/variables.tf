@@ -14,6 +14,6 @@ variable "ecr_repository_name" {
 }
 
 variable "aws_region" {
-  description = "AWS region"
+  description = "The AWS region to deploy resources"
   type        = string
 }

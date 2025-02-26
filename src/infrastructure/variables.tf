@@ -24,3 +24,8 @@ variable "AWS_ACCOUNT_ID" {
 variable "AWS_ECR_REPO_NAME" {
   type = string
 }
+
+variable "aws_region" {
+  type = string
+  default = "us-east-1"
+}
