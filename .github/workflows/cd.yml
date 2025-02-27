@@ -10,7 +10,39 @@ on:
       - main
 
 jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      TF_VAR_AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v2
+  
+      - name: Create ECR repository if not exists
+        run: |
+            aws ecr describe-repositories --repository-names $TF_VAR_AWS_ECR_REPO_NAME || \
+            aws ecr create-repository --repository-name $TF_VAR_AWS_ECR_REPO_NAME
+
+      - name: Build Docker image
+        run: |
+            docker build -t $TF_VAR_AWS_ECR_REPO_NAME lambda/
+            docker tag $TF_VAR_AWS_ECR_REPO_NAME:latest $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
+
+      - name: Push Docker image to ECR
+        run: |
+            docker push $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
+
+
   terraform-plan:
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
@@ -41,41 +73,10 @@ jobs:
       - name: Terraform Plan
         working-directory: src/infrastructure/
         run: terraform plan -out=tfplan
-        continue-on-error: true
-
-  build-docker-image:
-    needs: terraform-plan
-    runs-on: ubuntu-latest
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-      TF_VAR_AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
-      
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v2
-  
-      - name: Create ECR repository if not exists
-        run: |
-            aws ecr describe-repositories --repository-names $TF_VAR_AWS_ECR_REPO_NAME || \
-            aws ecr create-repository --repository-name $TF_VAR_AWS_ECR_REPO_NAME
-
-      - name: Build Docker image
-        run: |
-            docker build -t $TF_VAR_AWS_ECR_REPO_NAME src/lambda_function/
-            docker tag $TF_VAR_AWS_ECR_REPO_NAME:latest $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
-
-      - name: Push Docker image to ECR
-        run: |
-            docker push $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
+        continue-on-error: true      
 
   terraform-apply:
-    needs: build-docker-image
+    needs: terraform-plan
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
@@ -106,30 +107,3 @@ jobs:
       - name: Terraform Apply
         working-directory: src/infrastructure/
         run: terraform apply -auto-approve tfplan
-
-  push-image-to-ecr:
-    needs: terraform-apply
-    runs-on: ubuntu-latest
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-      TF_VAR_AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
-      
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v2
-  
-      - name: Create ECR repository if not exists
-        run: |
-            aws ecr describe-repositories --repository-names $TF_VAR_AWS_ECR_REPO_NAME || \
-            aws ecr create-repository --repository-name $TF_VAR_AWS_ECR_REPO_NAME
-
-      - name: Push Docker image to ECR
-        run: |
-            docker push $TF_VAR_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$TF_VAR_AWS_ECR_REPO_NAME:latest
-      
