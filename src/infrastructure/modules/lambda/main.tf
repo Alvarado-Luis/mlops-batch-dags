@@ -1,7 +1,3 @@
-resource "aws_ecr_repository" "lambda_repo" {
-  name = var.ecr_repository_name
-}
-
 resource "aws_lambda_function" "this" {
   function_name = var.lambda_name
   package_type  = "Image"

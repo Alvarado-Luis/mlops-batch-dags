@@ -1,8 +1,3 @@
-module "ecr" {
-  source = "./modules/ecr"
-  ecr_repository_name = var.AWS_ECR_REPO_NAME
-}
-
 module "lambda" {
   source = "./modules/lambda"
   aws_account_id = var.AWS_ACCOUNT_ID
