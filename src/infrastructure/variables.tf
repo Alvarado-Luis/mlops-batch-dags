@@ -1,31 +1,9 @@
-variable "eventbridge_rule_name" {
-  description = "The name of the EventBridge rule"
-  type        = string
-  default     = "daily-lambda-trigger"
-}
-
-
-variable "lambda_arn" {
-    description = "The arn of the Lambda function"
-    type        = string
-
-}
-
-variable "lambda_name" {
-  description = "The name of the Lambda function"
-  type        = string
-  default     = "lambda-start-ec2-airflow"
-}
-
 variable "AWS_ACCOUNT_ID" {
-  type = string
+  description = "AWS Account ID"
+  type        = string
 }
 
 variable "AWS_ECR_REPO_NAME" {
-  type = string
-}
-
-variable "aws_region" {
-  type = string
-  default = "us-east-1"
+  description = "ECR repository name"
+  type        = string
 }
