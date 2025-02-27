@@ -72,7 +72,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: src/infrastructure/
-        run: terraform plan -out=tfplan
+        run: TF_LOG=DEBUG terraform plan -out=tfplan -input=false
         continue-on-error: true      
 
   terraform-apply:
