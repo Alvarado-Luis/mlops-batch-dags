@@ -33,16 +33,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: latest
-
-      - name: Check if ECR repository exists and import if needed
-        run: |
-          aws ecr describe-repositories --repository-names ${{ vars.AWS_ECR_REPO_NAME }} || terraform import aws_ecr_repository.this ${{ vars.AWS_ACCOUNT_ID }}/${{ vars.AWS_ECR_REPO_NAME }}
-  
-      - name: Import Lambda and EventBridge if needed
-        run: |
-          terraform import aws_lambda_function.lambda_function <lambda-function-arn>
-          terraform import aws_cloudwatch_event_rule.invoke_lambda <eventbridge-rule-arn>
-
+          
       - name: Terraform Init
         working-directory: src/infrastructure/
         run: terraform init
