@@ -106,4 +106,4 @@ jobs:
 
       - name: Terraform Apply
         working-directory: src/infrastructure/
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve
